@@ -1,3 +1,6 @@
+import threading
+import time
+
 import pandas as pd
 
 # app.py
@@ -7,6 +10,11 @@ import pandas as pd
 from data_loading.korona_gov_update import get_new_values
 
 savefile = 'covid_data.json'
+
+def run_fetching_in_background():
+    while True:
+        update()
+        time.sleep(10)
 
 @app.route('/update/')
 def update():
@@ -21,6 +29,10 @@ def update():
 
     data.to_json(savefile)
     return data.to_html()
+
+@app.route('/get_data/')
+def get_data():
+    return pd.read_json(savefile).to_html()
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -52,4 +64,5 @@ def index():
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
+    threading.Thread(target=run_fetching_in_background).start()
     app.run(threaded=True, port=5000)
