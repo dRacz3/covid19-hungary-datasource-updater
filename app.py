@@ -3,6 +3,24 @@ import pandas as pd
 # app.py
 from flask import Flask, request, jsonify
 app = Flask(__name__)
+import pandas as pd
+from data_loading.korona_gov_update import get_new_values
+
+savefile = 'covid_data.json'
+
+@app.route('/update/')
+def update():
+    try:
+        data = pd.read_json(savefile)
+    except Exception:
+        columns = ['Fertztt', 'Gygyult', 'Elhunyt', 'Karantnban', 'Mintavtel']
+        data = pd.DataFrame(columns=columns)
+    print(data)
+    new_data = pd.DataFrame.from_records([get_new_values()]).set_index('timestamp')
+    data = pd.concat([data, new_data],  axis=0, join='outer', ignore_index=False)
+
+    data.to_json(savefile)
+    return data.to_html()
 
 @app.route('/getmsg/', methods=['GET'])
 def respond():
@@ -27,26 +45,10 @@ def respond():
     # Return the response in json format
     return jsonify(response)
 
-@app.route('/post/', methods=['POST'])
-def post_something():
-    param = request.form.get('name')
-    print(param)
-    # You can add the test cases you made in the previous function, but in our case here you are just testing the POST functionality
-    if param:
-        return jsonify({
-            "Message": f"Welcome {name} to our awesome platform!!",
-            # Add this option to distinct the POST request
-            "METHOD" : "POST"
-        })
-    else:
-        return jsonify({
-            "ERROR": "no name found, please send a name."
-        })
-
 # A welcome message to test our server
 @app.route('/')
 def index():
-    return "<h1>Welcome to our server !!</h1>"
+    return "<h1>COVID19 Hungary Data Source</h1>"
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
