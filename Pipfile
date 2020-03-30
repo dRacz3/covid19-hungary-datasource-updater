@@ -11,6 +11,9 @@ beautifulsoup4 = "*"
 requests = "*"
 pandas = "*"
 gunicorn = "*"
+sqlalchemy = "*"
+psycopg2-binary = "*"
+sqlalchemy-utils = "*"
 
 [requires]
 python_version = "3.7"
