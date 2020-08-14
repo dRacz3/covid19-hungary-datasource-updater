@@ -37,11 +37,13 @@ def update():
 
 @app.route('/get_data/')
 def get_data():
-    database_connection = create_connection()
-    data = pd.read_sql_table(TableProps.name, database_connection)
-    database_connection.close()
-    return data.to_html()
-
+    try:
+        database_connection = create_connection()
+        data = pd.read_sql_table(TableProps.name, database_connection)
+        database_connection.close()
+        return data.to_html()
+    except Exception as e:
+        return f"Failed to provide the requested data. Exception: {e}"
 
 # A welcome message to test our server
 @app.route('/')
