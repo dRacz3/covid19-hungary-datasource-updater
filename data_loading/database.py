@@ -1,3 +1,4 @@
+import sqlite3
 import time
 
 import sqlalchemy
@@ -11,13 +12,19 @@ import os
 
 
 class TableProps:
-    name = 'covid_hungary_data'
-    fertozott = "Fertztt"
-    gyogyult = "Gygyult"
-    elhunyt = "Elhunyt"
-    karantenban = "Karantnban"
-    mintavetel = "Mintavtel"
-    timestamp = "time"
+    name = 'COVID_HUNGARY'
+    api_fertozott_pest = 'api-fertozott-pest'
+    api_fertozott_videk = 'api-fertozott-videk'
+    api_gyogyult_pest = 'api-gyogyult-pest'
+    api_gyogyult_videk = 'api-gyogyult-videk'
+    api_elhunyt_pest = 'api-elhunyt-pest'
+    api_elhunyt_videk = 'api-elhunyt-videk'
+    api_karantenban = 'api-karantenban'
+    api_mintavetel = 'api-mintavetel'
+    api_elhunyt_global = 'api-elhunyt-global'
+    api_fertozott_global = 'api-fertozott-global'
+    api_gyogyult_global = 'api-gyogyult-global'
+    timestamp = 'timestamp'
 
 
 def drop_table(db):
@@ -30,31 +37,52 @@ def drop_table(db):
 def create_table(db):
     tables: sqlalchemy.engine.result.ResultProxy = db.execute(f"""
     CREATE TABLE {TableProps.name} (
-      index int,
-      Fertztt int,
-      Gygyult int,
-      Elhunyt int,
-      Karantnban int,
-      Mintavtel int,
-      time varchar(255)
-    )""")
+{TableProps.api_fertozott_pest.replace('-','_')} int,
+{TableProps.api_fertozott_videk.replace('-','_')} int,
+{TableProps.api_gyogyult_pest.replace('-','_')} int,
+{TableProps.api_gyogyult_videk.replace('-','_')} int,
+{TableProps.api_elhunyt_pest.replace('-','_')} int,
+{TableProps.api_elhunyt_videk.replace('-','_')} int,
+{TableProps.api_karantenban.replace('-','_')} int,
+{TableProps.api_mintavetel.replace('-','_')} int,
+{TableProps.api_elhunyt_global.replace('-','_')} int,
+{TableProps.api_fertozott_global.replace('-','_')} int,
+{TableProps.api_gyogyult_global.replace('-','_')} int,
+{TableProps.timestamp.replace('-','_')} varchar(255)
+)""")
+    print(tables)
 
 
 def add_new_row_to_table(db, values: Dict[str, Any]):
     db.execute(f"""
     INSERT INTO {TableProps.name}
-    VALUES ({values['Fertztt']},
-            {values['Gygyult']},
-            {values['Elhunyt']},
-            {values['Karantnban']},
-            {values['Mintavtel']},
-            {values['time']}    
+    VALUES ({values[TableProps.api_fertozott_pest]},  
+{values[TableProps.api_fertozott_videk].replace('-','_')},
+{values[TableProps.api_gyogyult_pest].replace('-','_')},
+{values[TableProps.api_gyogyult_videk].replace('-','_')},
+{values[TableProps.api_elhunyt_pest].replace('-','_')},
+{values[TableProps.api_elhunyt_videk].replace('-','_')},
+{values[TableProps.api_karantenban].replace('-','_')},
+{values[TableProps.api_mintavetel].replace('-','_')},
+{values[TableProps.api_elhunyt_global].replace('-','_')},
+{values[TableProps.api_fertozott_global].replace('-','_')},
+{values[TableProps.api_gyogyult_global].replace('-','_')},
+{values[TableProps.timestamp].replace('-','_')}
+   
 ); """)
 
 
 def create_connection() -> sqlalchemy.engine.base.Engine:
-    DATABASE_URL = os.environ['DATABASE_URL']
-    db = create_engine(DATABASE_URL, connect_args={'sslmode': 'require'}, echo=True).connect()
+    try:
+        DATABASE_URL = os.environ['DATABASE_URL']
+        db = create_engine(DATABASE_URL, connect_args={'sslmode': 'require'}, echo=True).connect()
+    except Exception:
+        print("Falling back to sqlite.db")
+        db_file = 'sqlite.db'
+        try:
+            db = create_engine(f"sqlite:////{db_file}").connect()
+        except Exception as e:
+            print(e)
     return db
 
 
@@ -69,8 +97,7 @@ if __name__ == '__main__':
     except:
         pass
     try:
-        pass
-        #create_table(db)
+        create_table(db)
     except:
         pass
     database_connection = create_connection()
@@ -86,8 +113,6 @@ if __name__ == '__main__':
 
         time.sleep(5)
     database_connection.close()
-
-
 
     print(f"Current data :{data}")
 

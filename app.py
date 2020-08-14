@@ -1,5 +1,6 @@
 import threading
 import time
+from tabulate import tabulate
 
 import pandas as pd
 
@@ -22,9 +23,12 @@ def run_fetching_in_background():
 def update():
     database_connection = create_connection()
     try:
+        print("Reading data from SQL")
         data = pd.read_sql_table(TableProps.name, database_connection)
-        data.append(get_new_values())
+        print(tabulate(data, data.columns, tablefmt="pretty"))
+        data.append(get_new_values(), ignore_index=True)
     except Exception as e:
+        print(f"Reading failed.. {e}")
         data = pd.DataFrame.from_records([get_new_values()])
     data.to_sql(TableProps.name, database_connection, if_exists='append')
     database_connection.close()
@@ -37,30 +41,6 @@ def get_data():
     data = pd.read_sql_table(TableProps.name, database_connection)
     database_connection.close()
     return data.to_html()
-
-
-@app.route('/getmsg/', methods=['GET'])
-def respond():
-    # Retrieve the name from url parameter
-    name = request.args.get("name", None)
-
-    # For debugging
-    print(f"got name {name}")
-
-    response = {}
-
-    # Check if user sent a name at all
-    if not name:
-        response["ERROR"] = "no name found, please send a name."
-    # Check if the user entered a number not a name
-    elif str(name).isdigit():
-        response["ERROR"] = "name can't be numeric."
-    # Now the user entered a valid name
-    else:
-        response["MESSAGE"] = f"Welcome {name} to our awesome platform!!"
-
-    # Return the response in json format
-    return jsonify(response)
 
 
 # A welcome message to test our server
@@ -78,8 +58,8 @@ if __name__ == '__main__':
         pass
     try:
         create_table(db)
-    except:
-        pass
+    except Exception as e:
+        print(e)
     db.close()
     # Threaded option to enable multiple instances for multiple user access support
     threading.Thread(target=run_fetching_in_background).start()
