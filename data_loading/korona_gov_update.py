@@ -1,3 +1,4 @@
+import bs4
 from bs4 import BeautifulSoup
 import requests
 import json
@@ -5,12 +6,18 @@ from datetime import datetime
 
 def get_new_values():
     koronagov = requests.get("https://koronavirus.gov.hu/").text
+    #print(koronagov)
     gov_site = BeautifulSoup(koronagov, 'html.parser')
-    data_cards = gov_site.find_all("", class_="diagram-a")
+    data_cards = gov_site.find_all("", id = lambda x : x and x.startswith('api-'))
     collected_data = {}
-    collected_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     for card in data_cards:
-        label = card.find_all('', class_='label')[0].text.encode("ascii", errors="ignore").decode()
-        value = json.loads(card.find_all('', class_='number')[0].text.replace(' ',''))
-        collected_data[label] = value
+        card : bs4.element.Tag
+        collected_data[card.get('id')] = int(card.text.replace(' ', ''))
+    collected_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(collected_data)
     return collected_data
+
+
+
+if __name__ == "__main__":
+    get_new_values()
