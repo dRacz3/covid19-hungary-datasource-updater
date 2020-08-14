@@ -11,7 +11,7 @@ def get_new_values():
     collected_data = {}
     for card in data_cards:
         card : bs4.element.Tag
-        collected_data[card.get('id')] = int(card.text.replace(' ', ''))
+        collected_data[card.get('id').replace('-','_')] = int(card.text.replace(' ', ''))
     collected_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return collected_data
 

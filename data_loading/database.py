@@ -36,40 +36,21 @@ def drop_table(db):
 
 def create_table(db):
     tables: sqlalchemy.engine.result.ResultProxy = db.execute(f"""
-    CREATE TABLE {TableProps.name} (
-{TableProps.api_fertozott_pest.replace('-','_')} int,
-{TableProps.api_fertozott_videk.replace('-','_')} int,
-{TableProps.api_gyogyult_pest.replace('-','_')} int,
-{TableProps.api_gyogyult_videk.replace('-','_')} int,
-{TableProps.api_elhunyt_pest.replace('-','_')} int,
-{TableProps.api_elhunyt_videk.replace('-','_')} int,
-{TableProps.api_karantenban.replace('-','_')} int,
-{TableProps.api_mintavetel.replace('-','_')} int,
-{TableProps.api_elhunyt_global.replace('-','_')} int,
-{TableProps.api_fertozott_global.replace('-','_')} int,
-{TableProps.api_gyogyult_global.replace('-','_')} int,
-{TableProps.timestamp.replace('-','_')} varchar(255)
+CREATE TABLE {TableProps.name} (
+{TableProps.api_fertozott_pest.replace('-', '_')} int,
+{TableProps.api_fertozott_videk.replace('-', '_')} int,
+{TableProps.api_gyogyult_pest.replace('-', '_')} int,
+{TableProps.api_gyogyult_videk.replace('-', '_')} int,
+{TableProps.api_elhunyt_pest.replace('-', '_')} int,
+{TableProps.api_elhunyt_videk.replace('-', '_')} int,
+{TableProps.api_karantenban.replace('-', '_')} int,
+{TableProps.api_mintavetel.replace('-', '_')} int,
+{TableProps.api_elhunyt_global.replace('-', '_')} int,
+{TableProps.api_fertozott_global.replace('-', '_')} int,
+{TableProps.api_gyogyult_global.replace('-', '_')} int,
+{TableProps.timestamp.replace('-', '_')} varchar(255)
 )""")
     print(tables)
-
-
-def add_new_row_to_table(db, values: Dict[str, Any]):
-    db.execute(f"""
-    INSERT INTO {TableProps.name}
-    VALUES ({values[TableProps.api_fertozott_pest]},  
-{values[TableProps.api_fertozott_videk].replace('-','_')},
-{values[TableProps.api_gyogyult_pest].replace('-','_')},
-{values[TableProps.api_gyogyult_videk].replace('-','_')},
-{values[TableProps.api_elhunyt_pest].replace('-','_')},
-{values[TableProps.api_elhunyt_videk].replace('-','_')},
-{values[TableProps.api_karantenban].replace('-','_')},
-{values[TableProps.api_mintavetel].replace('-','_')},
-{values[TableProps.api_elhunyt_global].replace('-','_')},
-{values[TableProps.api_fertozott_global].replace('-','_')},
-{values[TableProps.api_gyogyult_global].replace('-','_')},
-{values[TableProps.timestamp].replace('-','_')}
-   
-); """)
 
 
 def create_connection() -> sqlalchemy.engine.base.Engine:

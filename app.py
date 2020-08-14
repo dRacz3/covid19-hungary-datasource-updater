@@ -22,17 +22,17 @@ def run_fetching_in_background():
 @app.route('/update/')
 def update():
     database_connection = create_connection()
+    data = pd.DataFrame.from_records([get_new_values()])
+    data = data.set_index("timestamp")
+    new_table = pd.DataFrame()
     try:
-        print("Reading data from SQL")
-        data = pd.read_sql_table(TableProps.name, database_connection)
-        print(tabulate(data, data.columns, tablefmt="pretty"))
-        data.append(get_new_values(), ignore_index=True)
+        data.to_sql(TableProps.name, database_connection, if_exists='append')
+        new_table = pd.read_sql_table(TableProps.name, database_connection)
     except Exception as e:
-        print(f"Reading failed.. {e}")
-        data = pd.DataFrame.from_records([get_new_values()])
-    data.to_sql(TableProps.name, database_connection, if_exists='append')
-    database_connection.close()
-    return data.to_html()
+        print(e)
+    finally:
+        database_connection.close()
+    return new_table.to_html()
 
 
 @app.route('/get_data/')
