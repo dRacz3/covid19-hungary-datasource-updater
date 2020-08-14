@@ -45,10 +45,35 @@ def get_data():
     except Exception as e:
         return f"Failed to provide the requested data. Exception: {e}"
 
+
+@app.route('/get_data_as_json/')
+def get_data_as_json():
+    database_connection = create_connection()
+    data = pd.read_sql_table(TableProps.name, database_connection)
+    database_connection.close()
+    return data.to_json()
+
+
+@app.route('/get_data_as_csv/')
+def get_data_as_csv():
+    database_connection = create_connection()
+    data = pd.read_sql_table(TableProps.name, database_connection)
+    database_connection.close()
+    return data.to_csv()
+
+
 # A welcome message to test our server
 @app.route('/')
 def index():
-    return "<h1>COVID19 Hungary Data Source</h1>"
+    return f"""<h1>COVID19 Hungary Data Source</h1>
+Endpoints: <br>
+<ul>
+<li> /get_data_as_json/ - to fetch data as json </li>
+<li> /get_data_as_csv/ - to fetch data as csv</li>
+<li> /get_data/ - to fetch data as html</li> 
+<li> /update/ - to trigger an immediate update from gov site</li>
+</ul>
+"""
 
 
 if __name__ == '__main__':
