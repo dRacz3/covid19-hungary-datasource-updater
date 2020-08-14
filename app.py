@@ -16,7 +16,7 @@ from data_loading.database import create_connection, TableProps, clear_table, cr
 def run_fetching_in_background():
     while True:
         update()
-        time.sleep(10)
+        time.sleep(60)
 
 
 @app.route('/update/')
