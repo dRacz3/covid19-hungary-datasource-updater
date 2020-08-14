@@ -6,7 +6,6 @@ from datetime import datetime
 
 def get_new_values():
     koronagov = requests.get("https://koronavirus.gov.hu/").text
-    #print(koronagov)
     gov_site = BeautifulSoup(koronagov, 'html.parser')
     data_cards = gov_site.find_all("", id = lambda x : x and x.startswith('api-'))
     collected_data = {}
@@ -14,7 +13,6 @@ def get_new_values():
         card : bs4.element.Tag
         collected_data[card.get('id')] = int(card.text.replace(' ', ''))
     collected_data['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(collected_data)
     return collected_data
 
 
